@@ -15,9 +15,45 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
-        #gameCanvas { display: block; background: #1a1a1a; }
+        #gameCanvas { display: block; background: #1a1a1a; touch-action: none; }
+
+        #touchControls {
+            display: none;
+            position: fixed;
+            bottom: 25px;
+            left: 0;
+            right: 0;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 30;
+            pointer-events: none;
+        }
+
+        .touch-btn {
+            width: 90px;
+            height: 90px;
+            background: rgba(168, 85, 247, 0.25);
+            border: 3px solid rgba(168, 85, 247, 0.5);
+            border-radius: 50%;
+            color: #fff;
+            font-size: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .touch-btn:active, .touch-btn.active {
+            background: rgba(168, 85, 247, 0.5);
+            border-color: #a855f7;
+        }
 
         #ui {
             position: fixed;
@@ -145,12 +181,30 @@
         .play-btn { margin-top: 20px; font-size: 22px; padding: 15px 50px; }
 
         #levelComplete h1 { color: #4ade80; }
+
+        @media (max-width: 540px) {
+            h1 { font-size: 32px; }
+            p { font-size: 15px; }
+            #gameOver, #startScreen, #levelComplete { padding: 25px; width: 90vw; }
+            .level-card { width: 180px; height: 220px; }
+            .level-card .level-number { font-size: 48px; }
+            .level-card .level-name { font-size: 16px; }
+            .arrow-btn { width: 48px; height: 48px; font-size: 26px; }
+            .play-btn { font-size: 18px; padding: 12px 40px; }
+            button { padding: 12px 22px; font-size: 16px; }
+            #ui { font-size: 16px; }
+        }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
 
     <button id="menuBtn" onclick="goMenu()">MENU</button>
+
+    <div id="touchControls">
+        <div class="touch-btn" id="touchLeft">&#9664;</div>
+        <div class="touch-btn" id="touchRight">&#9654;</div>
+    </div>
 
     <div id="ui">
         <span>LEVEL <span id="levelNum">1</span></span>
@@ -160,7 +214,7 @@
 
     <div id="startScreen">
         <h1>TUNNEL RUNNER</h1>
-        <p>Fall down and dodge the obstacles!<br>Use LEFT/RIGHT or A/D to move</p>
+        <p>Fall down and dodge the obstacles!<br><span id="controlsHint">Use LEFT/RIGHT or A/D to move</span></p>
         <div class="level-carousel">
             <button class="arrow-btn" onclick="prevLevelSelect()">&lt;</button>
             <div class="level-card" id="levelCard" onclick="playSelected()">
@@ -578,6 +632,7 @@
             loadLevel(selectedLevel);
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('menuBtn').style.display = 'block';
+            showTouchControls();
             gameRunning = true;
         }
 
@@ -748,6 +803,7 @@
                 (deaths > 0 ? ` (${deaths} death${deaths > 1 ? 's' : ''})` : ' (Flawless!)');
             document.getElementById('levelComplete').style.display = 'block';
             document.getElementById('menuBtn').style.display = 'none';
+            hideTouchControls();
         }
 
         // ─── Navigation ───
@@ -758,6 +814,7 @@
                 selectedLevel = next;
                 loadLevel(next);
                 document.getElementById('menuBtn').style.display = 'block';
+                showTouchControls();
                 gameRunning = true;
             } else {
                 goMenu();
@@ -769,8 +826,62 @@
             document.getElementById('levelComplete').style.display = 'none';
             document.getElementById('menuBtn').style.display = 'none';
             document.getElementById('startScreen').style.display = 'block';
+            hideTouchControls();
             buildMenu();
         }
+
+        // ─── Mobile Support ───
+        const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        const touchControls = document.getElementById('touchControls');
+        const touchLeft = document.getElementById('touchLeft');
+        const touchRight = document.getElementById('touchRight');
+
+        if (isMobile) {
+            document.getElementById('controlsHint').textContent = 'Tap the arrows to move';
+        }
+
+        function showTouchControls() {
+            if (isMobile) touchControls.style.display = 'flex';
+        }
+        function hideTouchControls() {
+            touchControls.style.display = 'none';
+        }
+
+        // Touch button events
+        function addTouchEvents(btn, key) {
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                keys[key] = true;
+                btn.classList.add('active');
+            });
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                keys[key] = false;
+                btn.classList.remove('active');
+            });
+            btn.addEventListener('touchcancel', (e) => {
+                e.preventDefault();
+                keys[key] = false;
+                btn.classList.remove('active');
+            });
+        }
+        addTouchEvents(touchLeft, 'ArrowLeft');
+        addTouchEvents(touchRight, 'ArrowRight');
+
+        // Prevent scrolling/zooming on game area
+        document.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
+
+        // Responsive canvas scaling
+        function resizeCanvas() {
+            const maxW = 500, maxH = 700;
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            const scale = Math.min(vw / maxW, vh / maxH, 1);
+            canvas.style.width = (maxW * scale) + 'px';
+            canvas.style.height = (maxH * scale) + 'px';
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
         // ─── Init ───
         buildMenu();
