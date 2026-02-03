@@ -1,0 +1,436 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: #000;
+    overflow: hidden;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#gameCanvas { display: block; background: #1a1a1a; touch-action: none; }
+
+#touchControls {
+    display: none;
+    position: fixed;
+    bottom: 25px;
+    left: 0;
+    right: 0;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 30;
+    pointer-events: none;
+}
+
+.touch-btn {
+    width: 90px;
+    height: 90px;
+    background: rgba(168, 85, 247, 0.25);
+    border: 3px solid rgba(168, 85, 247, 0.5);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.touch-btn:active, .touch-btn.active {
+    background: rgba(168, 85, 247, 0.5);
+    border-color: #a855f7;
+}
+
+#ui {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    font-size: 22px;
+    text-align: center;
+    z-index: 10;
+    text-shadow: 2px 2px 4px #000;
+}
+
+#menuBtn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background: rgba(80, 80, 80, 0.6);
+    border: 2px solid #666;
+    color: #ccc;
+    font-size: 14px;
+    padding: 8px 14px;
+    cursor: pointer;
+    border-radius: 5px;
+    z-index: 20;
+    display: none;
+}
+
+#menuBtn:hover { background: rgba(168, 85, 247, 0.4); border-color: #a855f7; color: #fff; }
+
+/* ─── Start Screen (GDash style) ─── */
+#startScreen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(180deg, #0a0a2e 0%, #1a0a3e 40%, #2a1050 100%);
+    color: #fff;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 100;
+    overflow: hidden;
+}
+
+#startScreen.hidden { display: none; }
+
+/* Animated stars */
+#starsCanvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+}
+
+/* Ground */
+#menuGround {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: #2a1a0a;
+    border-top: 4px solid #4a3020;
+}
+#menuGround::before {
+    content: '';
+    position: absolute;
+    top: -20px; left: 0; right: 0;
+    height: 20px;
+    background: repeating-linear-gradient(
+        90deg,
+        transparent 0px, transparent 20px,
+        #2a1a0a 20px, #2a1a0a 40px
+    );
+    -webkit-mask-image: repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent 0px,
+        black 0px,
+        black 20px,
+        transparent 20px,
+        transparent 40px
+    );
+}
+.ground-spikes {
+    position: absolute;
+    top: -20px; left: 0; right: 0;
+    height: 20px;
+    display: flex;
+}
+.ground-spikes div {
+    width: 30px; height: 20px;
+    background: #3a2010;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    flex-shrink: 0;
+}
+
+/* Title */
+.menu-title {
+    margin-top: 40px;
+    font-size: 52px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow:
+        0 0 10px rgba(168, 85, 247, 0.8),
+        0 0 30px rgba(168, 85, 247, 0.4),
+        0 4px 0 #1a0a3e;
+    letter-spacing: 3px;
+    z-index: 2;
+}
+
+.menu-subtitle {
+    margin-top: 8px;
+    font-size: 16px;
+    color: rgba(200, 180, 255, 0.6);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    z-index: 2;
+}
+
+/* Level select area */
+.level-select-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    z-index: 2;
+    width: 100%;
+    padding: 0 10px;
+}
+
+.nav-btn {
+    background: rgba(30, 20, 60, 0.8);
+    border: 3px solid rgba(168, 85, 247, 0.4);
+    color: #c8b4ff;
+    font-size: 32px;
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+
+.nav-btn:hover { border-color: #a855f7; background: rgba(168, 85, 247, 0.3); color: #fff; }
+
+/* Level card - GDash style */
+.level-card {
+    background: rgba(20, 15, 40, 0.9);
+    border: 4px solid #555;
+    border-radius: 18px;
+    width: 260px;
+    padding: 24px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.level-card:hover { transform: scale(1.03); box-shadow: 0 4px 30px rgba(168, 85, 247, 0.3); }
+.level-card.done { border-color: #4ade80; }
+
+/* Difficulty face */
+.diff-face {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    position: relative;
+    margin-bottom: 10px;
+    border: 4px solid rgba(0,0,0,0.3);
+}
+.diff-face .face-eye {
+    position: absolute;
+    width: 10px;
+    height: 12px;
+    background: #000;
+    border-radius: 50%;
+    top: 26px;
+}
+.diff-face .face-eye.left { left: 20px; }
+.diff-face .face-eye.right { right: 20px; }
+.diff-face .face-mouth {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Easy face */
+.diff-face.easy { background: #4ade80; }
+.diff-face.easy .face-mouth {
+    width: 28px; height: 14px;
+    border-bottom: 4px solid #000;
+    border-radius: 0 0 14px 14px;
+}
+/* Normal face */
+.diff-face.normal { background: #facc15; }
+.diff-face.normal .face-mouth {
+    width: 22px; height: 0;
+    border-bottom: 4px solid #000;
+}
+.diff-face.normal .face-eye { top: 28px; height: 10px; }
+/* Hard face */
+.diff-face.hard { background: #f97316; }
+.diff-face.hard .face-eye { top: 24px; width: 14px; height: 8px; border-radius: 2px; }
+.diff-face.hard .face-mouth {
+    width: 28px; height: 14px;
+    border-top: 4px solid #000;
+    border-radius: 14px 14px 0 0;
+    bottom: 16px;
+}
+.diff-face.hard::before, .diff-face.hard::after {
+    content: '';
+    position: absolute;
+    width: 16px; height: 4px;
+    background: #000;
+    top: 18px;
+    border-radius: 2px;
+}
+.diff-face.hard::before { left: 16px; transform: rotate(-15deg); }
+.diff-face.hard::after { right: 16px; transform: rotate(15deg); }
+/* Insane face */
+.diff-face.insane { background: #ef4444; }
+.diff-face.insane .face-eye { top: 22px; width: 12px; height: 14px; }
+.diff-face.insane .face-mouth {
+    width: 32px; height: 16px;
+    background: #000;
+    border-radius: 0 0 16px 16px;
+    bottom: 14px;
+}
+.diff-face.insane::before, .diff-face.insane::after {
+    content: '';
+    position: absolute;
+    width: 18px; height: 4px;
+    background: #000;
+    top: 14px;
+    border-radius: 2px;
+}
+.diff-face.insane::before { left: 14px; transform: rotate(-25deg); }
+.diff-face.insane::after { right: 14px; transform: rotate(25deg); }
+
+.level-card .level-number {
+    font-size: 42px;
+    font-weight: 900;
+    color: #a855f7;
+    text-shadow: 0 2px 0 rgba(0,0,0,0.3);
+}
+.level-card.done .level-number { color: #4ade80; }
+.level-card .level-name {
+    font-size: 18px;
+    color: #ccc;
+    margin-top: 4px;
+    font-weight: 600;
+}
+.level-card .level-diff {
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.level-card .diff-bar {
+    margin-top: 6px;
+    width: 160px;
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.level-card .diff-fill { height: 100%; border-radius: 4px; }
+.level-card .level-status {
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* Play button - GDash green circle */
+.play-btn {
+    margin-top: 0;
+    margin-bottom: 80px;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+    border: 4px solid #16a34a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    box-shadow: 0 4px 15px rgba(74, 222, 128, 0.4), inset 0 2px 0 rgba(255,255,255,0.2);
+    transition: transform 0.1s, box-shadow 0.1s;
+    z-index: 2;
+    font-size: 0;
+}
+.play-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 25px rgba(74, 222, 128, 0.6), inset 0 2px 0 rgba(255,255,255,0.2);
+    background: linear-gradient(180deg, #5eead4 0%, #4ade80 100%);
+}
+.play-btn::after {
+    content: '';
+    display: block;
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 14px 0 14px 24px;
+    border-color: transparent transparent transparent #fff;
+    margin-left: 4px;
+}
+
+.controls-hint {
+    font-size: 14px;
+    color: rgba(200, 180, 255, 0.5);
+    z-index: 2;
+    margin-top: 6px;
+    margin-bottom: 10px;
+}
+
+/* Level Complete & Game Over */
+#gameOver, #levelComplete {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(10, 5, 30, 0.95);
+    padding: 40px;
+    border: 4px solid #a855f7;
+    border-radius: 18px;
+    color: #fff;
+    text-align: center;
+    display: none;
+    z-index: 100;
+    box-shadow: 0 0 40px rgba(168, 85, 247, 0.3);
+}
+
+h1 { color: #a855f7; margin-bottom: 20px; font-size: 48px; font-weight: 900; }
+
+button {
+    background: #a855f7;
+    color: #fff;
+    border: none;
+    padding: 15px 30px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 10px;
+    margin: 8px;
+    font-weight: 700;
+    transition: background 0.15s;
+}
+
+button:hover { background: #9333ea; }
+
+p { margin: 15px 0; font-size: 18px; color: #ccc; }
+
+#levelComplete h1 { color: #4ade80; }
+
+@media (max-width: 540px) {
+    .menu-title { font-size: 36px; margin-top: 25px; }
+    .menu-subtitle { font-size: 12px; }
+    .level-card { width: 200px; padding: 18px 14px 16px; }
+    .diff-face { width: 60px; height: 60px; }
+    .diff-face .face-eye { width: 8px; height: 10px; top: 20px; }
+    .diff-face .face-eye.left { left: 14px; }
+    .diff-face .face-eye.right { right: 14px; }
+    .diff-face .face-mouth { bottom: 14px; }
+    .diff-face.hard::before, .diff-face.hard::after { top: 14px; width: 12px; }
+    .diff-face.hard::before { left: 11px; }
+    .diff-face.hard::after { right: 11px; }
+    .diff-face.insane::before, .diff-face.insane::after { top: 10px; width: 14px; }
+    .diff-face.insane::before { left: 10px; }
+    .diff-face.insane::after { right: 10px; }
+    .level-card .level-number { font-size: 32px; }
+    .level-card .level-name { font-size: 15px; }
+    .nav-btn { width: 44px; height: 44px; font-size: 24px; }
+    .play-btn { width: 60px; height: 60px; margin-bottom: 70px; }
+    .play-btn::after { border-width: 10px 0 10px 18px; margin-left: 3px; }
+    #gameOver, #levelComplete { padding: 25px; width: 90vw; }
+    button { padding: 12px 22px; font-size: 16px; }
+    #ui { font-size: 16px; }
+}
