@@ -1,4 +1,4 @@
-# Forg Falling
+# Frog Falling
 
 A Minecraft dropper-style browser game where you fall through tunnels and dodge obstacles.
 
