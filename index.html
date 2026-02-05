@@ -10,6 +10,7 @@
     <canvas id="gameCanvas"></canvas>
 
     <button id="menuBtn" onclick="goMenu()">MENU</button>
+    <div id="cheatIndicator"></div>
 
     <div id="touchControls">
         <div class="touch-btn" id="touchLeft">&#9664;</div>
@@ -24,6 +25,7 @@
 
     <div id="startScreen">
         <canvas id="starsCanvas"></canvas>
+        <button id="ownerMenuBtn" onclick="openOwnerMenu()">OWNER</button>
         <div class="menu-title">FROG FALLING</div>
         <div class="menu-subtitle">dodge the drop</div>
 
@@ -52,11 +54,121 @@
         </div>
     </div>
 
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- CHARACTER SELECTION SCREEN                                     -->
+    <!-- Shown after the player picks a level and clicks PLAY.          -->
+    <!-- Displays a grid of frog sprites extracted from the sprite       -->
+    <!-- sheets. The player clicks a frog to highlight it, then clicks  -->
+    <!-- GO! to begin gameplay with that character.                      -->
+    <!-- The grid is built dynamically by game.js after sprite sheets   -->
+    <!-- finish loading (see buildCharSelectGrid).                       -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div id="charSelectScreen" class="hidden">
+        <div class="char-select-title">CHOOSE YOUR FROG</div>
+        <div class="char-select-grid" id="charGrid">
+            <!-- Frog option tiles are injected here by buildCharSelectGrid() -->
+        </div>
+        <div class="char-select-actions">
+            <button onclick="confirmFrogSelection()" id="charGoBtn" disabled>SELECT</button>
+            <button onclick="cancelCharSelect()">BACK</button>
+        </div>
+    </div>
+
     <div id="levelComplete">
         <h1>LEVEL COMPLETE!</h1>
         <p id="completeText"></p>
         <button onclick="goNextLevel()">NEXT LEVEL</button>
         <button onclick="goMenu()">MENU</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- OWNER MENU (cheat code: type 1476 on start screen)            -->
+    <!-- Two pages: CHEATS and SECRETS                                  -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div id="ownerMenu" class="hidden">
+        <div class="owner-menu-panel">
+            <div class="owner-menu-title">OWNER MENU</div>
+
+            <!-- Tab buttons -->
+            <div class="owner-tabs">
+                <button class="owner-tab active" onclick="showOwnerTab('cheats')">CHEATS</button>
+                <button class="owner-tab" onclick="showOwnerTab('secrets')">SECRETS</button>
+            </div>
+
+            <!-- Page 1: Cheats -->
+            <div id="ownerPage-cheats" class="owner-page">
+                <div class="owner-menu-cheats">
+                    <label class="cheat-row">
+                        <input type="checkbox" id="cheatNoclip">
+                        <span class="cheat-check"></span>
+                        <span class="cheat-label">Phase Through Walls</span>
+                        <span class="cheat-desc">Walk through all obstacles</span>
+                    </label>
+                    <label class="cheat-row">
+                        <input type="checkbox" id="cheatHalfSpeed">
+                        <span class="cheat-check"></span>
+                        <span class="cheat-label">Half Speed</span>
+                        <span class="cheat-desc">Fall at 50% speed</span>
+                    </label>
+                    <label class="cheat-row">
+                        <input type="checkbox" id="cheatMoonGravity">
+                        <span class="cheat-check"></span>
+                        <span class="cheat-label">Moon Gravity</span>
+                        <span class="cheat-desc">Float down gently</span>
+                    </label>
+                    <label class="cheat-row">
+                        <input type="checkbox" id="cheatSuperSpeed">
+                        <span class="cheat-check"></span>
+                        <span class="cheat-label">Super Speed</span>
+                        <span class="cheat-desc">Move left/right 3x faster</span>
+                    </label>
+                    <label class="cheat-row">
+                        <input type="checkbox" id="cheatTinyFrog">
+                        <span class="cheat-check"></span>
+                        <span class="cheat-label">Tiny Frog</span>
+                        <span class="cheat-desc">Shrink to half size</span>
+                    </label>
+                    <label class="cheat-row">
+                        <input type="checkbox" id="cheatGhostMode">
+                        <span class="cheat-check"></span>
+                        <span class="cheat-label">Ghost Mode</span>
+                        <span class="cheat-desc">Become invisible (semi-transparent)</span>
+                    </label>
+                    <label class="cheat-row">
+                        <input type="checkbox" id="cheatInstaWin">
+                        <span class="cheat-check"></span>
+                        <span class="cheat-label">Instant Win</span>
+                        <span class="cheat-desc">Press W to skip to finish line</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Page 2: Secrets -->
+            <div id="ownerPage-secrets" class="owner-page hidden">
+                <div class="secret-section">
+                    <div class="secret-title">SECRET LEVEL</div>
+                    <div class="secret-card" onclick="playSecretLevel()">
+                        <div class="secret-icon">&#127756;</div>
+                        <div class="secret-name">VOID DESCENT</div>
+                        <div class="secret-desc">Fall through the endless void of space. No walls. No mercy.</div>
+                    </div>
+                </div>
+                <div class="secret-section">
+                    <div class="secret-title">SECRET FROG</div>
+                    <div class="secret-info">
+                        <canvas id="spaceFrogPreview" width="80" height="80"></canvas>
+                        <div class="secret-frog-text">
+                            <div class="secret-name">SPACE FROG</div>
+                            <div class="secret-desc">Unlocked! Select in character menu.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="owner-menu-actions">
+                <button onclick="closeOwnerMenu()">CLOSE</button>
+            </div>
+        </div>
     </div>
 
     <script src="game.js"></script>

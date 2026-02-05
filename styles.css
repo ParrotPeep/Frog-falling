@@ -410,6 +410,372 @@ p { margin: 15px 0; font-size: 18px; color: #ccc; }
 
 #levelComplete h1 { color: #4ade80; }
 
+/* ═══════════════════════════════════════════════════════════════ */
+/* CHARACTER SELECTION SCREEN                                     */
+/* Full-screen overlay matching the game's dark/purple aesthetic. */
+/* Uses CSS grid to lay out frog sprite previews in 3 columns.   */
+/* Selected frog gets a green highlight border and glow.          */
+/* ═══════════════════════════════════════════════════════════════ */
+
+#charSelectScreen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(180deg, #0a0a2e 0%, #1a0a3e 40%, #2a1050 100%);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 101;
+    overflow-y: auto;
+    padding: 20px 10px;
+}
+
+#charSelectScreen.hidden { display: none; }
+
+/* Title at the top of the character select screen */
+.char-select-title {
+    font-size: 32px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow:
+        0 0 10px rgba(168, 85, 247, 0.8),
+        0 0 30px rgba(168, 85, 247, 0.4),
+        0 4px 0 #1a0a3e;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    flex-shrink: 0;
+}
+
+/* 3-column grid container for all frog options */
+.char-select-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 360px;
+    width: 100%;
+    overflow-y: auto;
+    flex: 1;
+    align-content: start;
+    padding: 4px;
+}
+
+/* Individual frog option tile in the selection grid */
+.frog-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(20, 15, 40, 0.8);
+    border: 3px solid rgba(100, 100, 100, 0.3);
+    border-radius: 12px;
+    padding: 8px 4px 6px;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+.frog-option:hover {
+    border-color: rgba(168, 85, 247, 0.6);
+    transform: scale(1.05);
+}
+
+/* Green highlight for the currently selected frog */
+.frog-option.selected {
+    border-color: #4ade80;
+    box-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
+    background: rgba(20, 40, 20, 0.8);
+}
+
+/* Canvas element displaying the frog sprite preview.
+   image-rendering: pixelated keeps the pixel art crisp when scaled. */
+.frog-option canvas {
+    width: 72px;
+    height: 72px;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+/* Frog name label below each sprite preview */
+.frog-name {
+    font-size: 11px;
+    color: #aaa;
+    margin-top: 4px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.frog-option.selected .frog-name { color: #4ade80; }
+
+/* Button row at the bottom of character select */
+.char-select-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    flex-shrink: 0;
+    padding-bottom: 10px;
+}
+
+.char-select-actions button { padding: 12px 28px; font-size: 16px; }
+
+/* Disabled state for the GO button before a frog is selected */
+.char-select-actions button:disabled {
+    opacity: 0.4;
+    cursor: default;
+    background: #555;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* OWNER MENU (cheat code overlay)                                */
+/* ═══════════════════════════════════════════════════════════════ */
+
+#ownerMenu {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+}
+#ownerMenu.hidden { display: none; }
+
+.owner-menu-panel {
+    background: linear-gradient(180deg, #1a0a3e 0%, #0a0a2e 100%);
+    border: 3px solid #ef4444;
+    border-radius: 18px;
+    padding: 28px 32px 20px;
+    width: 340px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow:
+        0 0 30px rgba(239, 68, 68, 0.4),
+        0 0 80px rgba(239, 68, 68, 0.15);
+}
+
+.owner-menu-title {
+    font-size: 28px;
+    font-weight: 900;
+    color: #ef4444;
+    text-align: center;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+    text-shadow:
+        0 0 10px rgba(239, 68, 68, 0.8),
+        0 0 30px rgba(239, 68, 68, 0.4);
+}
+
+.owner-menu-cheats {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cheat-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    background: rgba(255, 255, 255, 0.04);
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+.cheat-row:hover {
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.06);
+}
+
+.cheat-row input[type="checkbox"] {
+    display: none;
+}
+
+.cheat-check {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #666;
+    border-radius: 5px;
+    margin-right: 10px;
+    flex-shrink: 0;
+    position: relative;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.cheat-row input[type="checkbox"]:checked ~ .cheat-check {
+    border-color: #4ade80;
+    background: #4ade80;
+}
+.cheat-row input[type="checkbox"]:checked ~ .cheat-check::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 6px;
+    width: 6px; height: 10px;
+    border: solid #000;
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg);
+}
+
+.cheat-label {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    flex: 1;
+}
+
+.cheat-desc {
+    width: 100%;
+    font-size: 11px;
+    color: #888;
+    margin-top: 2px;
+    padding-left: 32px;
+}
+
+.owner-menu-actions {
+    margin-top: 18px;
+    text-align: center;
+}
+.owner-menu-actions button {
+    background: #ef4444;
+    padding: 12px 36px;
+    font-size: 16px;
+    border-radius: 10px;
+}
+.owner-menu-actions button:hover {
+    background: #dc2626;
+}
+
+/* Owner Menu Tabs */
+.owner-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+.owner-tab {
+    flex: 1;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    color: #888;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.owner-tab:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ccc;
+}
+.owner-tab.active {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+/* Owner Menu Pages */
+.owner-page { display: block; }
+.owner-page.hidden { display: none; }
+
+/* Secrets Page */
+.secret-section {
+    margin-bottom: 16px;
+}
+.secret-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #888;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+.secret-card {
+    background: linear-gradient(135deg, rgba(59, 7, 100, 0.6) 0%, rgba(30, 10, 60, 0.8) 100%);
+    border: 2px solid rgba(168, 85, 247, 0.4);
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+.secret-card:hover {
+    border-color: #a855f7;
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+    transform: scale(1.02);
+}
+.secret-icon {
+    font-size: 36px;
+    margin-bottom: 8px;
+}
+.secret-name {
+    font-size: 16px;
+    font-weight: 900;
+    color: #a855f7;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+}
+.secret-desc {
+    font-size: 11px;
+    color: #888;
+    line-height: 1.4;
+}
+.secret-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 2px solid rgba(74, 222, 128, 0.3);
+    border-radius: 12px;
+    padding: 12px;
+}
+.secret-info canvas {
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    image-rendering: pixelated;
+}
+.secret-frog-text {
+    flex: 1;
+}
+.secret-frog-text .secret-name {
+    color: #4ade80;
+}
+
+/* Owner Menu button on start screen (only visible after code entered) */
+#ownerMenuBtn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(239, 68, 68, 0.2);
+    border: 2px solid rgba(239, 68, 68, 0.5);
+    color: #ef4444;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    z-index: 3;
+    letter-spacing: 1px;
+    transition: background 0.15s, border-color 0.15s;
+    display: none;
+}
+#ownerMenuBtn:hover {
+    background: rgba(239, 68, 68, 0.35);
+    border-color: #ef4444;
+}
+
+/* Cheat active indicator during gameplay */
+#cheatIndicator {
+    position: fixed;
+    top: 50px;
+    left: 15px;
+    color: #ef4444;
+    font-size: 11px;
+    font-weight: 700;
+    z-index: 20;
+    text-shadow: 1px 1px 3px #000;
+    display: none;
+    line-height: 1.6;
+    white-space: pre-line;
+}
+
 @media (max-width: 540px) {
     .menu-title { font-size: 36px; margin-top: 25px; }
     .menu-subtitle { font-size: 12px; }
@@ -433,4 +799,11 @@ p { margin: 15px 0; font-size: 18px; color: #ccc; }
     #gameOver, #levelComplete { padding: 25px; width: 90vw; }
     button { padding: 12px 22px; font-size: 16px; }
     #ui { font-size: 16px; }
+    /* Character select responsive adjustments */
+    .char-select-title { font-size: 24px; margin-bottom: 10px; }
+    .char-select-grid { max-width: 300px; gap: 8px; }
+    .frog-option { padding: 6px 2px 4px; }
+    .frog-option canvas { width: 56px; height: 56px; }
+    .frog-name { font-size: 10px; }
+    .char-select-actions button { padding: 10px 20px; font-size: 14px; }
 }
